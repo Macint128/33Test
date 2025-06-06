@@ -2,14 +2,77 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>무지개 팝업 버튼</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>팝업 버튼 + 파도 로딩</title>
   <style>
-    body {
-      margin: 0;
+    /* 공통 바디 스타일 (팝업 화면용) */
+    body, html {
+      margin: 0; padding: 0;
+      height: 100%;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f0f0f0;
+    }
+
+    /* 로딩 화면 스타일 */
+    #loadingScreen {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: #87ceeb;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      user-select: none;
+      z-index: 1000;
+    }
+
+    .loading-text {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 40px;
+      text-shadow: 0 0 10px rgba(0,0,0,0.4);
+    }
+
+    .wave-container {
+      position: relative;
+      width: 100%;
+      height: 100px;
+      overflow: hidden;
+    }
+
+    .wave {
+      position: absolute;
+      bottom: 0;
+      width: 200%;
+      height: 100px;
+      background: rgba(255, 255, 255, 0.5);
+      border-radius: 35% 35% 0 0;
+      opacity: 0.6;
+      animation: waveMove 4s linear infinite;
+    }
+
+    .wave:nth-child(2) {
+      bottom: 10px;
+      background: rgba(255, 255, 255, 0.3);
+      animation-duration: 6s;
+      opacity: 0.4;
+    }
+
+    @keyframes waveMove {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    /* 팝업 버튼 화면 숨기기 (초기 상태) */
+    #mainContent {
+      display: none;
       padding: 40px 0;
       background-color: #f0f0f0;
-      font-family: 'Segoe UI', sans-serif;
+      height: 100vh;
+      box-sizing: border-box;
+
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -40,37 +103,10 @@
       font-weight: bold;
       color: #fff;
       cursor: pointer;
-      transition: all 0.3s ease;
-      position: relative;
-      border: 4px solid transparent;
+      transition: transform 0.3s ease;
     }
 
-    /* 무지개 + 흔들흔들 효과 */
-    .cell:hover {
-      animation: shake 0.3s infinite;
-      border-image: linear-gradient(
-        45deg,
-        red,
-        orange,
-        yellow,
-        green,
-        blue,
-        indigo,
-        violet,
-        red
-      ) 1;
-      border-image-slice: 1;
-    }
-
-    @keyframes shake {
-      0% { transform: translate(0px, 0px) rotate(0deg); }
-      25% { transform: translate(1px, -1px) rotate(-1deg); }
-      50% { transform: translate(-1px, 1px) rotate(1deg); }
-      75% { transform: translate(1px, 1px) rotate(0deg); }
-      100% { transform: translate(0px, 0px) rotate(-1deg); }
-    }
-
-    /* 팝업 오버레이 */
+    /* 팝업용 오버레이 */
     .popup-overlay {
       position: fixed;
       top: 0;
@@ -126,33 +162,43 @@
 </head>
 <body>
 
-  <!-- 타이틀 -->
-  <h1>🌈 마법의 3x3 버튼 🌈</h1>
-
-  <!-- 버튼 그리드 -->
-  <div class="grid">
-    <div class="cell" onclick="openPopup(1)">1</div>
-    <div class="cell" onclick="openPopup(2)">2</div>
-    <div class="cell" onclick="openPopup(3)">3</div>
-    <div class="cell" onclick="openPopup(4)">4</div>
-    <div class="cell" onclick="openPopup(5)">5</div>
-    <div class="cell" onclick="openPopup(6)">6</div>
-    <div class="cell" onclick="openPopup(7)">7</div>
-    <div class="cell" onclick="openPopup(8)">8</div>
-    <div class="cell" onclick="openPopup(9)">9</div>
-  </div>
-
-  <!-- 팝업 -->
-  <div id="popup" class="popup-overlay" style="display: none;">
-    <div class="popup-content">
-      <span class="close-btn" onclick="closePopup()">×</span>
-      <h2 id="popup-title">팝업 제목</h2>
-      <p id="popup-text">여기에 내용을 보여줄 수 있어요 😎</p>
+  <!-- 로딩 화면 -->
+  <div id="loadingScreen">
+    <div class="loading-text">Loading...</div>
+    <div class="wave-container">
+      <div class="wave"></div>
+      <div class="wave"></div>
     </div>
   </div>
 
-  <!-- JS -->
+  <!-- 메인 팝업 버튼 화면 -->
+  <div id="mainContent">
+    <h1>✨ 마법의 3x3 버튼 ✨</h1>
+
+    <div class="grid">
+      <div class="cell" onclick="openPopup(1)">1</div>
+      <div class="cell" onclick="openPopup(2)">2</div>
+      <div class="cell" onclick="openPopup(3)">3</div>
+      <div class="cell" onclick="openPopup(4)">4</div>
+      <div class="cell" onclick="openPopup(5)">5</div>
+      <div class="cell" onclick="openPopup(6)">6</div>
+      <div class="cell" onclick="openPopup(7)">7</div>
+      <div class="cell" onclick="openPopup(8)">8</div>
+      <div class="cell" onclick="openPopup(9)">9</div>
+    </div>
+
+    <!-- 팝업 오버레이 -->
+    <div id="popup" class="popup-overlay" style="display: none;">
+      <div class="popup-content">
+        <span class="close-btn" onclick="closePopup()">×</span>
+        <h2 id="popup-title">팝업 제목</h2>
+        <p id="popup-text">여기에 내용을 보여줄 수 있어요 😎</p>
+      </div>
+    </div>
+  </div>
+
   <script>
+    // 팝업 내용
     const popupContents = {
       1: "🍕 피자에 파인애플은 어때?",
       2: "🎮 오늘의 게임은 마리오카트",
@@ -174,6 +220,14 @@
     function closePopup() {
       document.getElementById("popup").style.display = "none";
     }
+
+    // 로딩 후 화면 전환 (2초)
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        document.getElementById('loadingScreen').style.display = 'none';
+        document.getElementById('mainContent').style.display = 'flex';
+      }, 2000);
+    });
   </script>
 
 </body>
