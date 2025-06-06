@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>팝업 버튼</title>
+  <title>무지개 팝업 버튼</title>
   <style>
     body {
       margin: 0;
@@ -40,10 +40,37 @@
       font-weight: bold;
       color: #fff;
       cursor: pointer;
-      transition: transform 0.3s ease;
+      transition: all 0.3s ease;
+      position: relative;
+      border: 4px solid transparent;
     }
 
-    /* 팝업용 오버레이 */
+    /* 무지개 + 흔들흔들 효과 */
+    .cell:hover {
+      animation: shake 0.3s infinite;
+      border-image: linear-gradient(
+        45deg,
+        red,
+        orange,
+        yellow,
+        green,
+        blue,
+        indigo,
+        violet,
+        red
+      ) 1;
+      border-image-slice: 1;
+    }
+
+    @keyframes shake {
+      0% { transform: translate(0px, 0px) rotate(0deg); }
+      25% { transform: translate(1px, -1px) rotate(-1deg); }
+      50% { transform: translate(-1px, 1px) rotate(1deg); }
+      75% { transform: translate(1px, 1px) rotate(0deg); }
+      100% { transform: translate(0px, 0px) rotate(-1deg); }
+    }
+
+    /* 팝업 오버레이 */
     .popup-overlay {
       position: fixed;
       top: 0;
@@ -99,9 +126,10 @@
 </head>
 <body>
 
-  <!-- 타이틀 추가! -->
-  <h1>✨ 마법의 3x3 버튼 ✨</h1>
+  <!-- 타이틀 -->
+  <h1>🌈 마법의 3x3 버튼 🌈</h1>
 
+  <!-- 버튼 그리드 -->
   <div class="grid">
     <div class="cell" onclick="openPopup(1)">1</div>
     <div class="cell" onclick="openPopup(2)">2</div>
@@ -114,7 +142,7 @@
     <div class="cell" onclick="openPopup(9)">9</div>
   </div>
 
-  <!-- 팝업 오버레이 -->
+  <!-- 팝업 -->
   <div id="popup" class="popup-overlay" style="display: none;">
     <div class="popup-content">
       <span class="close-btn" onclick="closePopup()">×</span>
@@ -123,6 +151,7 @@
     </div>
   </div>
 
+  <!-- JS -->
   <script>
     const popupContents = {
       1: "🍕 피자에 파인애플은 어때?",
