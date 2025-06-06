@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>팝업 버튼 및 테마 선택</title>
+    <title>테마 변경 팝업</title>
     <style>
         /*
          * 기본 스타일
@@ -11,20 +11,22 @@
         body {
             margin: 0;
             padding: 40px 0;
-            background-color: #f0f0f0;
+            background-color: var(--bg-color, #f0f0f0); /* 테마 색상 변수 사용 */
             font-family: 'Segoe UI', sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             min-height: 100vh;
+            transition: background-color 0.5s ease; /* 배경색 전환 애니메이션 */
         }
 
         h1 {
             font-size: 32px;
             margin-bottom: 30px;
-            color: #003566;
+            color: var(--heading-color, #003566); /* 테마 색상 변수 사용 */
             text-align: center;
+            transition: color 0.5s ease; /* 제목색 전환 애니메이션 */
         }
 
         /*
@@ -43,7 +45,7 @@
          * 각 버튼 셀 스타일
          */
         .cell {
-            background-color: #74c0fc;
+            background-color: var(--button-color, #74c0fc); /* 테마 색상 변수 사용 */
             border-radius: 15px;
             aspect-ratio: 1 / 1;
             display: flex;
@@ -51,20 +53,20 @@
             align-items: center;
             font-size: 24px;
             font-weight: bold;
-            color: #fff;
+            color: var(--button-text-color, #fff); /* 테마 색상 변수 사용 */
             cursor: pointer;
-            transition: transform 0.3s ease, background-color 0.3s ease;
+            transition: transform 0.3s ease, background-color 0.3s ease, color 0.3s ease; /* 전환 애니메이션 추가 */
             user-select: none;
         }
 
         .cell:hover {
             transform: translateY(-3px);
-            background-color: #4da6ed;
+            background-color: var(--button-hover-color, #4da6ed); /* 테마 색상 변수 사용 */
         }
 
         .cell:active {
             transform: translateY(0);
-            background-color: #2b7bc0;
+            background-color: var(--button-active-color, #2b7bc0); /* 테마 색상 변수 사용 */
         }
 
         /*
@@ -74,25 +76,25 @@
             width: 320px;
             max-width: 90%;
             padding: 15px 20px;
-            background-color: #fca311;
-            color: #fff;
+            background-color: var(--theme-button-color, #fca311); /* 테마 색상 변수 사용 */
+            color: var(--theme-button-text-color, #fff); /* 테마 색상 변수 사용 */
             font-size: 20px;
             font-weight: bold;
             border: none;
             border-radius: 15px;
             cursor: pointer;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            transition: background-color 0.3s ease, transform 0.3s ease;
+            transition: background-color 0.3s ease, transform 0.3s ease, color 0.3s ease; /* 전환 애니메이션 추가 */
             text-align: center;
         }
 
         .theme-button:hover {
-            background-color: #fb8b24;
+            background-color: var(--theme-button-hover-color, #fb8b24); /* 테마 색상 변수 사용 */
             transform: translateY(-2px);
         }
 
         .theme-button:active {
-            background-color: #e57100;
+            background-color: var(--theme-button-active-color, #e57100); /* 테마 색상 변수 사용 */
             transform: translateY(0);
         }
 
@@ -186,25 +188,24 @@
         }
 
         /*
-         * 테마 팝업 스타일 (수정됨!)
+         * 테마 팝업 스타일
          */
         .theme-popup-content {
-            background-color: #fff;
+            background-color: var(--popup-bg-color, #fff); /* 테마 색상 변수 사용 */
             border-radius: 20px;
             padding: 30px;
             width: 350px;
             max-width: 90%;
-            /* height: 400px; 이 부분을 제거하거나 min-height로 변경*/
-            max-height: 80vh; /* 화면 높이의 80%를 넘지 않도록 (수정) */
+            max-height: 80vh;
             text-align: center;
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
             position: relative;
             display: flex;
             flex-direction: column;
             transform: scale(0.7);
-            transition: transform 0.3s ease, opacity 0.3s ease;
+            transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.5s ease; /* 전환 애니메이션 추가 */
             opacity: 0;
-            box-sizing: border-box; /* 패딩을 포함한 크기 계산 */
+            box-sizing: border-box;
         }
 
         .popup-overlay.show .theme-popup-content {
@@ -214,58 +215,90 @@
 
         .theme-popup-content h2 {
             margin-top: 0;
-            color: #003566;
+            color: var(--popup-heading-color, #003566); /* 테마 색상 변수 사용 */
             font-size: 28px;
             margin-bottom: 20px;
+            transition: color 0.5s ease; /* 전환 애니메이션 추가 */
         }
 
+        /*
+         * 스크롤 컨테이너 스타일 (스크롤바 보이게)
+         */
         .theme-scroll-container {
             flex-grow: 1;
-            overflow-y: auto; /* 'scroll' 대신 'auto' 사용 (수정) */
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-            padding-right: 15px;
+            overflow-y: scroll; /* 'scroll'로 변경하여 스크롤바 항상 보이게 */
+            padding-right: 15px; /* 스크롤바 공간 확보 */
+            box-sizing: border-box; /* 패딩 포함 크기 계산 */
         }
 
-        /* 웹킷 기반 브라우저 (Chrome, Safari) 스크롤바 숨김 */
+        /* 웹킷 기반 브라우저 스크롤바 스타일 */
         .theme-scroll-container::-webkit-scrollbar {
-            display: none;
+            width: 8px; /* 스크롤바 너비 */
+            background-color: var(--scrollbar-track-color, #f1f1f1); /* 스크롤바 트랙 색상 */
+            border-radius: 4px;
         }
 
+        .theme-scroll-container::-webkit-scrollbar-thumb {
+            background-color: var(--scrollbar-thumb-color, #888); /* 스크롤바 색상 */
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+
+        .theme-scroll-container::-webkit-scrollbar-thumb:hover {
+            background-color: var(--scrollbar-thumb-hover-color, #555); /* 스크롤바 호버 색상 */
+        }
+
+
+        /*
+         * 테마 아이템 스타일 (위, 중간, 아래 크기 조절)
+         */
         .theme-item {
             padding: 15px;
             margin-bottom: 10px;
-            background-color: #e0f2f7;
+            background-color: var(--theme-item-bg-color, #e0f2f7); /* 테마 색상 변수 사용 */
             border-radius: 10px;
             font-size: 18px;
-            color: #003566;
+            color: var(--theme-item-text-color, #003566); /* 테마 색상 변수 사용 */
             cursor: pointer;
-            transition: background-color 0.2s ease, transform 0.1s ease;
+            transition: background-color 0.2s ease, transform 0.1s ease, font-size 0.3s ease, padding 0.3s ease; /* 전환 애니메이션 추가 */
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
             display: flex;
             align-items: center;
             justify-content: center;
-            height: 60px;
+            height: 60px; /* 기본 높이 */
             box-sizing: border-box;
+            white-space: nowrap; /* 텍스트 줄바꿈 방지 */
+            overflow: hidden; /* 넘치는 텍스트 숨김 */
+            text-overflow: ellipsis; /* 넘치는 텍스트 ... 처리 */
         }
 
         .theme-item:hover {
-            background-color: #cce9f0;
+            background-color: var(--theme-item-hover-color, #cce9f0); /* 테마 색상 변수 사용 */
             transform: translateX(5px);
         }
 
-        /*
-         * 키프레임 애니메이션 (스크롤 효과)
-         * 현재는 자동 스크롤을 사용하므로 이 애니메이션은 직접적인 영향을 주지 않습니다.
-         */
-        @keyframes scrollUp {
-            from { transform: translateY(0%); }
-            to { transform: translateY(-100%); }
+        /* 스크롤 위치에 따른 아이템 크기 조절 */
+        /* 이 부분은 JavaScript에서 동적으로 클래스를 추가/제거할 때 활용됩니다. */
+        .theme-item.small {
+            font-size: 16px; /* 작게 */
+            padding: 10px;
+            height: 50px;
+            opacity: 0.7;
         }
 
-        @keyframes scrollDown {
-            from { transform: translateY(-100%); }
-            to { transform: translateY(0%); }
+        .theme-item.medium {
+            font-size: 20px; /* 중간 크기 (기본값) */
+            padding: 15px;
+            height: 60px;
+            opacity: 1;
+        }
+
+        .theme-item.large {
+            font-size: 24px; /* 크게 */
+            padding: 20px;
+            height: 70px;
+            opacity: 1;
+            font-weight: bold;
         }
 
         /* 팝업 오버레이에 각각의 팝업 컨텐츠를 명시적으로 숨김/보이게 함 */
@@ -318,13 +351,129 @@
             9: "🧸 귀여움이 세상을 구한다"
         };
 
-        // 테마 내용 데이터
-        const themeContents = [
-            "숲 속의 아침", "도시의 밤", "바다의 속삭임", "은하수 여행", "황금빛 들판",
-            "따뜻한 벽난로", "고요한 사막", "신비로운 동굴", "활기찬 시장", "눈 내리는 마을",
-            "빈티지 서재", "미래 도시", "동화 속 궁전", "우주 정거장", "고대 유적",
-            "찬란한 석양", "새벽 안개", "무지개 다리", "벚꽃 축제", "고요한 정원",
-            "환상의 계곡", "태고의 숲", "신비한 섬", "숨겨진 폭포", "별빛 호수" // 스크롤 테스트를 위해 몇 개 더 추가
+        // 테마 설정 데이터 (색상 변수, 이모지, 기본 상태)
+        const themes = [
+            {
+                name: "기본 테마",
+                emoji: "✨",
+                styles: {
+                    '--bg-color': '#f0f0f0',
+                    '--heading-color': '#003566',
+                    '--button-color': '#74c0fc',
+                    '--button-hover-color': '#4da6ed',
+                    '--button-active-color': '#2b7bc0',
+                    '--button-text-color': '#fff',
+                    '--theme-button-color': '#fca311',
+                    '--theme-button-hover-color': '#fb8b24',
+                    '--theme-button-active-color': '#e57100',
+                    '--theme-button-text-color': '#fff',
+                    '--popup-bg-color': '#fff',
+                    '--popup-heading-color': '#003566',
+                    '--theme-item-bg-color': '#e0f2f7',
+                    '--theme-item-hover-color': '#cce9f0',
+                    '--theme-item-text-color': '#003566',
+                    '--scrollbar-track-color': '#f1f1f1',
+                    '--scrollbar-thumb-color': '#888',
+                    '--scrollbar-thumb-hover-color': '#555'
+                }
+            },
+            {
+                name: "새벽 안개 테마",
+                emoji: "🌫️",
+                styles: {
+                    '--bg-color': '#e0e7e9',
+                    '--heading-color': '#4a6b72',
+                    '--button-color': '#8cb1bb',
+                    '--button-hover-color': '#6c96a3',
+                    '--button-active-color': '#527c8a',
+                    '--button-text-color': '#fff',
+                    '--theme-button-color': '#5d7f87',
+                    '--theme-button-hover-color': '#4a6b72',
+                    '--theme-button-active-color': '#3b5258',
+                    '--theme-button-text-color': '#fff',
+                    '--popup-bg-color': '#f2f5f6',
+                    '--popup-heading-color': '#4a6b72',
+                    '--theme-item-bg-color': '#cfe0e5',
+                    '--theme-item-hover-color': '#b6d2da',
+                    '--theme-item-text-color': '#4a6b72',
+                    '--scrollbar-track-color': '#e0e7e9',
+                    '--scrollbar-thumb-color': '#9faab0',
+                    '--scrollbar-thumb-hover-color': '#7f8a90'
+                }
+            },
+            {
+                name: "석양 테마",
+                emoji: "🌅",
+                styles: {
+                    '--bg-color': '#fde2e4',
+                    '--heading-color': '#9e2a2b',
+                    '--button-color': '#ffbe0b',
+                    '--button-hover-color': '#fb8b24',
+                    '--button-active-color': '#d96e00',
+                    '--button-text-color': '#fff',
+                    '--theme-button-color': '#e0573e',
+                    '--theme-button-hover-color': '#c7442c',
+                    '--theme-button-active-color': '#ab3723',
+                    '--theme-button-text-color': '#fff',
+                    '--popup-bg-color': '#fff5d7',
+                    '--popup-heading-color': '#9e2a2b',
+                    '--theme-item-bg-color': '#ffd9a0',
+                    '--theme-item-hover-color': '#ffc060',
+                    '--theme-item-text-color': '#9e2a2b',
+                    '--scrollbar-track-color': '#fde2e4',
+                    '--scrollbar-thumb-color': '#f9a170',
+                    '--scrollbar-thumb-hover-color': '#e27b40'
+                }
+            },
+            {
+                name: "밤하늘 테마",
+                emoji: "🌌",
+                styles: {
+                    '--bg-color': '#212a3e',
+                    '--heading-color': '#e0e0e0',
+                    '--button-color': '#4a6b7e',
+                    '--button-hover-color': '#6e93a7',
+                    '--button-active-color': '#335063',
+                    '--button-text-color': '#fff',
+                    '--theme-button-color': '#7e5a8f',
+                    '--theme-button-hover-color': '#9f7db3',
+                    '--theme-button-active-color': '#6c4b7c',
+                    '--theme-button-text-color': '#fff',
+                    '--popup-bg-color': '#394867',
+                    '--popup-heading-color': '#e0e0e0',
+                    '--theme-item-bg-color': '#5a6e81',
+                    '--theme-item-hover-color': '#6e859b',
+                    '--theme-item-text-color': '#e0e0e0',
+                    '--scrollbar-track-color': '#212a3e',
+                    '--scrollbar-thumb-color': '#a1a9b9',
+                    '--scrollbar-thumb-hover-color': '#7e879a'
+                }
+            },
+            {
+                name: "푸른 숲 테마",
+                emoji: "🌳",
+                styles: {
+                    '--bg-color': '#e8f6ef',
+                    '--heading-color': '#2a5b4f',
+                    '--button-color': '#60a3bc',
+                    '--button-hover-color': '#4c89a0',
+                    '--button-active-color': '#3a728b',
+                    '--button-text-color': '#fff',
+                    '--theme-button-color': '#4c7c4c',
+                    '--theme-button-hover-color': '#3a663a',
+                    '--theme-button-active-color': '#2b502b',
+                    '--theme-button-text-color': '#fff',
+                    '--popup-bg-color': '#f0fbf5',
+                    '--popup-heading-color': '#2a5b4f',
+                    '--theme-item-bg-color': '#a7d9c8',
+                    '--theme-item-hover-color': '#90c6b1',
+                    '--theme-item-text-color': '#2a5b4f',
+                    '--scrollbar-track-color': '#e8f6ef',
+                    '--scrollbar-thumb-color': '#80a89a',
+                    '--scrollbar-thumb-hover-color': '#668b7e'
+                }
+            }
+            // 여기에 더 많은 테마를 추가할 수 있어요!
         ];
 
         // DOM 요소 가져오기
@@ -367,18 +516,26 @@
 
         // --- 테마 팝업 관련 함수 ---
         function initializeThemeItems() {
-            themeContents.forEach((theme, index) => {
+            themeScrollContainer.innerHTML = ''; // 기존 아이템 초기화
+            themes.forEach((theme, index) => {
                 const themeItem = document.createElement("div");
                 themeItem.classList.add("theme-item");
-                themeItem.textContent = theme;
+                themeItem.textContent = `${theme.emoji} ${theme.name}`; // 이모지 추가
                 themeItem.dataset.themeIndex = index;
                 themeScrollContainer.appendChild(themeItem);
             });
+            // 초기 스크롤 위치에 따라 크기 조절
+            updateThemeItemSizes();
         }
 
         function openThemePopup() {
             themePopupOverlay.classList.add("show");
             document.body.style.overflow = 'hidden';
+            // 팝업이 열린 후, 스크롤 위치를 0으로 초기화
+            themeScrollContainer.scrollTop = 0;
+            // 팝업이 열린 후 스크롤 위치에 따라 크기 업데이트
+            // transition 때문에 약간의 딜레이를 줍니다.
+            setTimeout(updateThemeItemSizes, 300);
         }
 
         function closeThemePopup() {
@@ -386,6 +543,62 @@
             document.body.style.overflow = '';
         }
 
+        // 스크롤 위치에 따라 테마 아이템 크기 조절 함수
+        function updateThemeItemSizes() {
+            const containerHeight = themeScrollContainer.clientHeight;
+            const scrollTop = themeScrollContainer.scrollTop;
+            const items = themeScrollContainer.querySelectorAll('.theme-item');
+
+            items.forEach(item => {
+                const itemTop = item.offsetTop - scrollTop;
+                const itemBottom = itemTop + item.offsetHeight;
+                const itemCenter = itemTop + item.offsetHeight / 2;
+
+                // 컨테이너 중앙 Y 좌표 (스크롤바 포함)
+                const containerCenterY = containerHeight / 2;
+
+                // 아이템이 컨테이너 중앙에 얼마나 가까운지 계산
+                const distanceToCenter = Math.abs(itemCenter - containerCenterY);
+
+                // 최대 거리는 컨테이너 높이의 절반
+                const maxDistance = containerHeight / 2;
+
+                // 거리가 멀수록 작아지고, 가까울수록 커지도록 스케일 계산
+                // 1 (가장 큼) ~ 0.6 (가장 작음)
+                let scale = 1 - (distanceToCenter / maxDistance) * 0.4; // 0.4는 조절 가능한 스케일 폭
+                scale = Math.max(0.7, Math.min(1, scale)); // 최소 0.7배, 최대 1배로 제한
+
+                if (scale >= 0.9) {
+                    item.classList.remove('small', 'medium');
+                    item.classList.add('large');
+                } else if (scale >= 0.8) {
+                    item.classList.remove('small', 'large');
+                    item.classList.add('medium');
+                } else {
+                    item.classList.remove('medium', 'large');
+                    item.classList.add('small');
+                }
+            });
+        }
+
+
+        // 선택된 테마를 적용하는 함수
+        function applyTheme(themeIndex) {
+            const selectedTheme = themes[themeIndex];
+            if (!selectedTheme) return;
+
+            const root = document.documentElement; // HTML의 root 요소
+            // CSS 변수 업데이트
+            for (const [property, value] of Object.entries(selectedTheme.styles)) {
+                root.style.setProperty(property, value);
+            }
+
+            // 테마 버튼 텍스트와 이모지 업데이트 (선택된 테마로)
+            themeButton.innerHTML = `${selectedTheme.emoji} ${selectedTheme.name}`;
+
+            console.log(`테마가 "${selectedTheme.name}"으로 변경되었습니다!`);
+            closeThemePopup();
+        }
 
         // --- 이벤트 리스너 등록 ---
         gridContainer.addEventListener("click", (event) => {
@@ -414,14 +627,17 @@
             }
         });
 
+        // 테마 아이템 클릭 이벤트 (이벤트 위임)
         themeScrollContainer.addEventListener("click", (event) => {
             const clickedThemeItem = event.target.closest(".theme-item");
             if (clickedThemeItem) {
-                const themeName = clickedThemeItem.textContent;
-                alert(`"${themeName}" 테마를 선택하셨습니다!`);
-                closeThemePopup();
+                const themeIndex = parseInt(clickedThemeItem.dataset.themeIndex);
+                applyTheme(themeIndex); // 테마 적용 함수 호출
             }
         });
+
+        // 스크롤 이벤트 발생 시 테마 아이템 크기 업데이트
+        themeScrollContainer.addEventListener('scroll', updateThemeItemSizes);
 
         document.addEventListener("keydown", (event) => {
             if (event.key === "Escape") {
@@ -436,6 +652,7 @@
         document.addEventListener("DOMContentLoaded", () => {
             initializeGrid();
             initializeThemeItems();
+            applyTheme(0); // 페이지 로드 시 '기본 테마' 적용
         });
     </script>
 
