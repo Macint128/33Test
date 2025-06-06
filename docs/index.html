@@ -125,20 +125,34 @@
         }
 
         /*
-         * 닫기 버튼 스타일
+         * 닫기 버튼 스타일 (수정됨!)
          */
         .close-btn {
             position: absolute;
-            top: 15px; /* 위치 조정 */
-            right: 15px; /* 위치 조정 */
-            font-size: 30px; /* 크기 키움 */
+            top: 15px;
+            right: 15px;
+            width: 36px; /* 버튼 가로 길이 */
+            height: 36px; /* 버튼 세로 길이 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #e74c3c; /* 붉은색 배경 */
+            border-radius: 8px; /* 둥근 모서리 */
+            font-size: 24px; /* X 글자 크기 */
+            color: #fff; /* X 글자 색상 */
             cursor: pointer;
-            color: #aaa; /* 색상 변경 */
-            transition: color 0.2s ease;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* 그림자 추가 */
         }
 
         .close-btn:hover {
-            color: #555; /* 호버 시 색상 변경 */
+            background-color: #c0392b; /* 호버 시 더 진한 붉은색 */
+            transform: translateY(-1px); /* 살짝 떠오르는 효과 */
+        }
+
+        .close-btn:active {
+            background-color: #a32c21; /* 클릭 시 더 진한 색상 */
+            transform: translateY(0); /* 클릭 시 원위치 */
         }
     </style>
 </head>
@@ -151,7 +165,8 @@
 
     <div id="popup-overlay" class="popup-overlay">
         <div class="popup-content">
-            <span class="close-btn">&times;</span> <h2 id="popup-title"></h2>
+            <span class="close-btn">&times;</span>
+            <h2 id="popup-title"></h2>
             <p id="popup-text"></p>
         </div>
     </div>
@@ -174,7 +189,7 @@
         const popupOverlay = document.getElementById("popup-overlay");
         const popupTitle = document.getElementById("popup-title");
         const popupText = document.getElementById("popup-text");
-        const closeButton = popupOverlay.querySelector(".close-btn"); // 닫기 버튼 선택
+        const closeButton = popupOverlay.querySelector(".close-btn");
         const gridContainer = document.querySelector(".grid");
 
         // 초기화 함수: 버튼을 동적으로 생성
@@ -183,7 +198,7 @@
                 const cell = document.createElement("div");
                 cell.classList.add("cell");
                 cell.textContent = i;
-                cell.dataset.number = i; // data-속성을 사용하여 숫자 저장
+                cell.dataset.number = i;
                 gridContainer.appendChild(cell);
             }
         }
@@ -192,44 +207,39 @@
         function openPopup(number) {
             popupTitle.textContent = `버튼 ${number}`;
             popupText.textContent = popupContents[number];
-            popupOverlay.classList.add("show"); // 'show' 클래스 추가하여 팝업 표시
-            document.body.style.overflow = 'hidden'; // 팝업 열렸을 때 스크롤 방지
+            popupOverlay.classList.add("show");
+            document.body.style.overflow = 'hidden';
         }
 
         // 팝업 닫기 함수
         function closePopup() {
-            popupOverlay.classList.remove("show"); // 'show' 클래스 제거하여 팝업 숨김
-            document.body.style.overflow = ''; // 스크롤 다시 허용
+            popupOverlay.classList.remove("show");
+            document.body.style.overflow = '';
         }
 
         // 이벤트 리스너 등록
-        // 그리드 컨테이너에 이벤트 위임 (더 효율적)
         gridContainer.addEventListener("click", (event) => {
-            const targetCell = event.target.closest(".cell"); // .cell 클래스를 가진 가장 가까운 부모 요소를 찾음
-            if (targetCell) { // 클릭된 요소가 .cell이라면
+            const targetCell = event.target.closest(".cell");
+            if (targetCell) {
                 const number = parseInt(targetCell.dataset.number);
                 openPopup(number);
             }
         });
 
-        // 닫기 버튼 클릭 이벤트
         closeButton.addEventListener("click", closePopup);
 
-        // 오버레이 외부 클릭 시 팝업 닫기
         popupOverlay.addEventListener("click", (event) => {
-            if (event.target === popupOverlay) { // 클릭된 요소가 오버레이 자체일 경우
+            if (event.target === popupOverlay) {
                 closePopup();
             }
         });
 
-        // ESC 키 눌렀을 때 팝업 닫기
         document.addEventListener("keydown", (event) => {
             if (event.key === "Escape" && popupOverlay.classList.contains("show")) {
                 closePopup();
             }
         });
 
-        // 페이지 로드 시 그리드 초기화
         document.addEventListener("DOMContentLoaded", initializeGrid);
     </script>
 
