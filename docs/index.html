@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>3x3 그리드 페이지</title>
+  <title>3x3 팝업 버튼</title>
   <style>
     body {
       margin: 0;
@@ -35,27 +35,54 @@
       font-weight: bold;
       color: #003566;
       box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-      transition: transform 0.2s;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
     }
 
-    .cell:hover {
-      transform: scale(1.05);
-      cursor: pointer;
-      background-color: #74c0fc;
+    .cell.active {
+      background-color: #ffe066;
+      color: #000;
+      font-size: 16px;
+      padding: 10px;
     }
   </style>
 </head>
 <body>
   <div class="grid">
-    <div class="cell">1</div>
-    <div class="cell">2</div>
-    <div class="cell">3</div>
-    <div class="cell">4</div>
-    <div class="cell">5</div>
-    <div class="cell">6</div>
-    <div class="cell">7</div>
-    <div class="cell">8</div>
-    <div class="cell">9</div>
+    <div class="cell" onclick="togglePopup(this, 1)">1</div>
+    <div class="cell" onclick="togglePopup(this, 2)">2</div>
+    <div class="cell" onclick="togglePopup(this, 3)">3</div>
+    <div class="cell" onclick="togglePopup(this, 4)">4</div>
+    <div class="cell" onclick="togglePopup(this, 5)">5</div>
+    <div class="cell" onclick="togglePopup(this, 6)">6</div>
+    <div class="cell" onclick="togglePopup(this, 7)">7</div>
+    <div class="cell" onclick="togglePopup(this, 8)">8</div>
+    <div class="cell" onclick="togglePopup(this, 9)">9</div>
   </div>
+
+  <script>
+    const popupContents = {
+      1: "🍕 피자는 언제나 옳다",
+      2: "🎮 오늘도 게임각!",
+      3: "🚀 로켓 준비 완료",
+      4: "🎵 플레이리스트 ON",
+      5: "🌈 무지개 떴다~",
+      6: "🧃 딸기우유 한 잔 콸콸",
+      7: "💡 번뜩이는 아이디어!",
+      8: "🛸 외계인에게 납치됨",
+      9: "🧸 곰돌이 안녕!"
+    };
+
+    function togglePopup(element, number) {
+      element.classList.toggle("active");
+      if (element.classList.contains("active")) {
+        element.textContent = popupContents[number];
+      } else {
+        element.textContent = number;
+      }
+    }
+  </script>
 </body>
 </html>
