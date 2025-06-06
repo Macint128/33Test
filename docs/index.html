@@ -1,234 +1,237 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>팝업 버튼 + 파도 로딩</title>
-  <style>
-    /* 공통 바디 스타일 (팝업 화면용) */
-    body, html {
-      margin: 0; padding: 0;
-      height: 100%;
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #f0f0f0;
-    }
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>팝업 버튼</title>
+    <style>
+        /*
+         * 기본 스타일
+         */
+        body {
+            margin: 0;
+            padding: 40px 0;
+            background-color: #f0f0f0;
+            font-family: 'Segoe UI', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center; /* 팝업이 중앙에 더 잘 오도록 추가 */
+            min-height: 100vh; /* 전체 화면 높이 사용 */
+        }
 
-    /* 로딩 화면 스타일 */
-    #loadingScreen {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: #87ceeb;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      color: white;
-      user-select: none;
-      z-index: 1000;
-    }
+        h1 {
+            font-size: 32px;
+            margin-bottom: 30px;
+            color: #003566;
+            text-align: center;
+        }
 
-    .loading-text {
-      font-size: 24px;
-      font-weight: 700;
-      margin-bottom: 40px;
-      text-shadow: 0 0 10px rgba(0,0,0,0.4);
-    }
+        /*
+         * 그리드 컨테이너 스타일
+         */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            width: 320px; /* 고정 너비 지정 */
+            max-width: 90%; /* 작은 화면에서 너무 커지지 않도록 */
+        }
 
-    .wave-container {
-      position: relative;
-      width: 100%;
-      height: 100px;
-      overflow: hidden;
-    }
+        /*
+         * 각 버튼 셀 스타일
+         */
+        .cell {
+            background-color: #74c0fc;
+            border-radius: 15px;
+            aspect-ratio: 1 / 1; /* 정사각형 유지 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #fff;
+            cursor: pointer;
+            transition: transform 0.3s ease, background-color 0.3s ease; /* 호버 효과 추가 */
+            user-select: none; /* 텍스트 드래그 방지 */
+        }
 
-    .wave {
-      position: absolute;
-      bottom: 0;
-      width: 200%;
-      height: 100px;
-      background: rgba(255, 255, 255, 0.5);
-      border-radius: 35% 35% 0 0;
-      opacity: 0.6;
-      animation: waveMove 4s linear infinite;
-    }
+        .cell:hover {
+            transform: translateY(-3px); /* 살짝 떠오르는 효과 */
+            background-color: #4da6ed; /* 호버 시 색상 변경 */
+        }
 
-    .wave:nth-child(2) {
-      bottom: 10px;
-      background: rgba(255, 255, 255, 0.3);
-      animation-duration: 6s;
-      opacity: 0.4;
-    }
+        .cell:active {
+            transform: translateY(0); /* 클릭 시 원위치 */
+            background-color: #2b7bc0; /* 클릭 시 더 진한 색상 */
+        }
 
-    @keyframes waveMove {
-      0% { transform: translateX(0); }
-      100% { transform: translateX(-50%); }
-    }
+        /*
+         * 팝업 오버레이 스타일
+         */
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6); /* 배경을 좀 더 어둡게 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000; /* z-index를 1000으로 설정하여 다른 요소 위에 확실히 표시 */
+            opacity: 0; /* 초기 투명하게 설정 */
+            visibility: hidden; /* 초기 숨김 처리 */
+            transition: opacity 0.3s ease, visibility 0.3s ease; /* 부드러운 전환 효과 */
+        }
 
-    /* 팝업 버튼 화면 숨기기 (초기 상태) */
-    #mainContent {
-      display: none;
-      padding: 40px 0;
-      background-color: #f0f0f0;
-      height: 100vh;
-      box-sizing: border-box;
+        .popup-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
 
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
+        /*
+         * 팝업 내용 스타일
+         */
+        .popup-content {
+            background-color: #fff;
+            border-radius: 20px;
+            padding: 30px;
+            width: 300px;
+            max-width: 90%; /* 작은 화면에서 너무 커지지 않도록 */
+            text-align: center;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25); /* 그림자 강화 */
+            position: relative;
+            transform: scale(0.7); /* 초기 크기 작게 */
+            transition: transform 0.3s ease, opacity 0.3s ease; /* 부드러운 전환 효과 */
+            opacity: 0; /* 초기 투명하게 설정 */
+        }
 
-    h1 {
-      font-size: 32px;
-      margin-bottom: 30px;
-      color: #003566;
-      text-align: center;
-    }
+        .popup-overlay.show .popup-content {
+            transform: scale(1); /* 팝업 표시 시 원래 크기로 */
+            opacity: 1;
+        }
 
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
-      width: 320px;
-    }
+        .popup-content h2 {
+            margin-top: 0;
+            color: #003566;
+            font-size: 28px;
+        }
 
-    .cell {
-      background-color: #74c0fc;
-      border-radius: 15px;
-      aspect-ratio: 1;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 24px;
-      font-weight: bold;
-      color: #fff;
-      cursor: pointer;
-      transition: transform 0.3s ease;
-    }
+        .popup-content p {
+            color: #333;
+            font-size: 18px;
+            line-height: 1.5;
+        }
 
-    /* 팝업용 오버레이 */
-    .popup-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0,0,0,0.5);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 999;
-    }
+        /*
+         * 닫기 버튼 스타일
+         */
+        .close-btn {
+            position: absolute;
+            top: 15px; /* 위치 조정 */
+            right: 15px; /* 위치 조정 */
+            font-size: 30px; /* 크기 키움 */
+            cursor: pointer;
+            color: #aaa; /* 색상 변경 */
+            transition: color 0.2s ease;
+        }
 
-    .popup-content {
-      background-color: #fff;
-      border-radius: 20px;
-      padding: 30px;
-      width: 300px;
-      text-align: center;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-      position: relative;
-      animation: popupOpen 0.3s ease;
-    }
-
-    @keyframes popupOpen {
-      from {
-        transform: scale(0.7);
-        opacity: 0;
-      }
-      to {
-        transform: scale(1);
-        opacity: 1;
-      }
-    }
-
-    .popup-content h2 {
-      margin-top: 0;
-    }
-
-    .close-btn {
-      position: absolute;
-      top: 10px;
-      right: 15px;
-      font-size: 24px;
-      cursor: pointer;
-      color: #888;
-    }
-
-    .close-btn:hover {
-      color: #000;
-    }
-  </style>
+        .close-btn:hover {
+            color: #555; /* 호버 시 색상 변경 */
+        }
+    </style>
 </head>
 <body>
 
-  <!-- 로딩 화면 -->
-  <div id="loadingScreen">
-    <div class="loading-text">Loading...</div>
-    <div class="wave-container">
-      <div class="wave"></div>
-      <div class="wave"></div>
-    </div>
-  </div>
-
-  <!-- 메인 팝업 버튼 화면 -->
-  <div id="mainContent">
     <h1>✨ 마법의 3x3 버튼 ✨</h1>
 
     <div class="grid">
-      <div class="cell" onclick="openPopup(1)">1</div>
-      <div class="cell" onclick="openPopup(2)">2</div>
-      <div class="cell" onclick="openPopup(3)">3</div>
-      <div class="cell" onclick="openPopup(4)">4</div>
-      <div class="cell" onclick="openPopup(5)">5</div>
-      <div class="cell" onclick="openPopup(6)">6</div>
-      <div class="cell" onclick="openPopup(7)">7</div>
-      <div class="cell" onclick="openPopup(8)">8</div>
-      <div class="cell" onclick="openPopup(9)">9</div>
+        </div>
+
+    <div id="popup-overlay" class="popup-overlay">
+        <div class="popup-content">
+            <span class="close-btn">&times;</span> <h2 id="popup-title"></h2>
+            <p id="popup-text"></p>
+        </div>
     </div>
 
-    <!-- 팝업 오버레이 -->
-    <div id="popup" class="popup-overlay" style="display: none;">
-      <div class="popup-content">
-        <span class="close-btn" onclick="closePopup()">×</span>
-        <h2 id="popup-title">팝업 제목</h2>
-        <p id="popup-text">여기에 내용을 보여줄 수 있어요 😎</p>
-      </div>
-    </div>
-  </div>
+    <script>
+        // 팝업 내용 데이터
+        const popupContents = {
+            1: "🍕 피자에 파인애플은 어때?",
+            2: "🎮 오늘의 게임은 마리오카트",
+            3: "🚀 너의 꿈은 우주로!",
+            4: "📚 코딩도 예술이야",
+            5: "🌈 무지개는 비 온 뒤에",
+            6: "🧃 딸기우유가 최고야",
+            7: "🎨 너만의 색을 칠해봐",
+            8: "🛸 외계인 친구를 사귀었어",
+            9: "🧸 귀여움이 세상을 구한다"
+        };
 
-  <script>
-    // 팝업 내용
-    const popupContents = {
-      1: "🍕 피자에 파인애플은 어때?",
-      2: "🎮 오늘의 게임은 마리오카트",
-      3: "🚀 너의 꿈은 우주로!",
-      4: "📚 코딩도 예술이야",
-      5: "🌈 무지개는 비 온 뒤에",
-      6: "🧃 딸기우유가 최고야",
-      7: "🎨 너만의 색을 칠해봐",
-      8: "🛸 외계인 친구를 사귀었어",
-      9: "🧸 귀여움이 세상을 구한다"
-    };
+        // DOM 요소 가져오기
+        const popupOverlay = document.getElementById("popup-overlay");
+        const popupTitle = document.getElementById("popup-title");
+        const popupText = document.getElementById("popup-text");
+        const closeButton = popupOverlay.querySelector(".close-btn"); // 닫기 버튼 선택
+        const gridContainer = document.querySelector(".grid");
 
-    function openPopup(number) {
-      document.getElementById("popup").style.display = "flex";
-      document.getElementById("popup-title").innerText = `버튼 ${number}`;
-      document.getElementById("popup-text").innerText = popupContents[number];
-    }
+        // 초기화 함수: 버튼을 동적으로 생성
+        function initializeGrid() {
+            for (let i = 1; i <= 9; i++) {
+                const cell = document.createElement("div");
+                cell.classList.add("cell");
+                cell.textContent = i;
+                cell.dataset.number = i; // data-속성을 사용하여 숫자 저장
+                gridContainer.appendChild(cell);
+            }
+        }
 
-    function closePopup() {
-      document.getElementById("popup").style.display = "none";
-    }
+        // 팝업 열기 함수
+        function openPopup(number) {
+            popupTitle.textContent = `버튼 ${number}`;
+            popupText.textContent = popupContents[number];
+            popupOverlay.classList.add("show"); // 'show' 클래스 추가하여 팝업 표시
+            document.body.style.overflow = 'hidden'; // 팝업 열렸을 때 스크롤 방지
+        }
 
-    // 로딩 후 화면 전환 (2초)
-    window.addEventListener('load', () => {
-      setTimeout(() => {
-        document.getElementById('loadingScreen').style.display = 'none';
-        document.getElementById('mainContent').style.display = 'flex';
-      }, 2000);
-    });
-  </script>
+        // 팝업 닫기 함수
+        function closePopup() {
+            popupOverlay.classList.remove("show"); // 'show' 클래스 제거하여 팝업 숨김
+            document.body.style.overflow = ''; // 스크롤 다시 허용
+        }
+
+        // 이벤트 리스너 등록
+        // 그리드 컨테이너에 이벤트 위임 (더 효율적)
+        gridContainer.addEventListener("click", (event) => {
+            const targetCell = event.target.closest(".cell"); // .cell 클래스를 가진 가장 가까운 부모 요소를 찾음
+            if (targetCell) { // 클릭된 요소가 .cell이라면
+                const number = parseInt(targetCell.dataset.number);
+                openPopup(number);
+            }
+        });
+
+        // 닫기 버튼 클릭 이벤트
+        closeButton.addEventListener("click", closePopup);
+
+        // 오버레이 외부 클릭 시 팝업 닫기
+        popupOverlay.addEventListener("click", (event) => {
+            if (event.target === popupOverlay) { // 클릭된 요소가 오버레이 자체일 경우
+                closePopup();
+            }
+        });
+
+        // ESC 키 눌렀을 때 팝업 닫기
+        document.addEventListener("keydown", (event) => {
+            if (event.key === "Escape" && popupOverlay.classList.contains("show")) {
+                closePopup();
+            }
+        });
+
+        // 페이지 로드 시 그리드 초기화
+        document.addEventListener("DOMContentLoaded", initializeGrid);
+    </script>
 
 </body>
 </html>
