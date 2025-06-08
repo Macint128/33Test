@@ -6,6 +6,11 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <title>동숲 친구들과 수다</title>
+
+  <!-- 홈 화면 아이콘 설정 -->
+  <link rel="apple-touch-icon" href="icon.png" />
+  <meta name="apple-mobile-web-app-title" content="동숲 친구들과 수다" />
+
   <style>
     body {
       margin: 0;
@@ -82,7 +87,7 @@
       border: 1.5px solid #f7e46e;
     }
 
-    /* 캐릭터별 배경 & 글자색 다르게 */
+    /* 캐릭터별 배경 & 글자색 */
     .msg.negu {
       background-color: #fff3b0;
       color: #6b4f01;
@@ -284,6 +289,8 @@
       }
     };
 
+    let currentChar = 'negu';
+
     function addMessage(text, from) {
       const msg = document.createElement('div');
       msg.classList.add('msg');
@@ -319,8 +326,6 @@
       }, 500);
     }
 
-    let currentChar = 'negu';
-
     charButtons.forEach(btn => {
       btn.addEventListener('click', () => {
         charButtons.forEach(b => b.classList.remove('active'));
@@ -335,7 +340,6 @@
         onSend();
       }
     });
-
   </script>
 </body>
 </html>
