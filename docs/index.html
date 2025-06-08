@@ -2,167 +2,381 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>동숲 잡담 모바일</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+  <title>동숲 친구들과 수다</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Comic+Neue&display=swap');
-
+    /* 배경 연한 노랑 */
     body {
       margin: 0;
-      padding: 0;
-      font-family: 'Comic Neue', cursive, Arial, sans-serif;
-      background-color: #fff9db;
-      color: #3b2f2f;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+        Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      background-color: #fff9d6;
+      color: #333;
+      height: 100vh;
       display: flex;
       flex-direction: column;
-      height: 100vh;
+    }
+
+    header {
+      background: #fff3b0;
+      padding: 12px;
+      text-align: center;
+      font-weight: 700;
+      font-size: 1.3rem;
+      border-bottom: 1px solid #f0e68c;
+    }
+
+    #char-select {
+      display: flex;
+      justify-content: space-around;
+      background: #fff3b0;
+      border-bottom: 1px solid #f0e68c;
+      padding: 8px 0;
+    }
+
+    #char-select button {
+      flex: 1;
+      background: transparent;
+      border: none;
+      padding: 6px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      color: #555;
+      font-weight: 600;
+      transition: background-color 0.3s, color 0.3s;
+      border-radius: 8px;
+      margin: 0 4px;
+    }
+
+    #char-select button.active {
+      background-color: #f7e46e;
+      color: #000;
+      font-weight: 700;
+      box-shadow: 0 0 6px #f7e46e;
     }
 
     #chat {
-      flex-grow: 1;
-      padding: 12px;
+      flex: 1;
       overflow-y: auto;
-      background: #fffde7;
-      box-shadow: inset 0 0 10px #f0e68c;
-      border-radius: 12px 12px 0 0;
-      font-size: 16px;
-      line-height: 1.4;
+      padding: 12px 10px;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 10px;
+      scroll-behavior: smooth;
     }
 
     .msg {
       max-width: 75%;
-      padding: 10px 15px;
-      border-radius: 20px;
+      padding: 8px 12px;
+      border-radius: 16px;
+      line-height: 1.3;
+      font-size: 1rem;
       word-break: break-word;
-      box-shadow: 1px 1px 3px rgba(0,0,0,0.1);
-      font-weight: 600;
     }
 
-    .user {
-      background: #f7f1c1;
-      color: #6b4f00;
+    .msg.user {
+      background-color: #fffbea;
       align-self: flex-end;
-      border-bottom-right-radius: 0;
+      color: #222;
+      border: 1.5px solid #f7e46e;
     }
 
-    .flora {
-      background: #fff3b0;
-      color: #b87f00;
+    /* 캐릭터별 말풍선 색 */
+    .msg.negu {
+      background-color: #fff3b0;
+      color: #6b4f01;
       align-self: flex-start;
-      border-bottom-left-radius: 0;
-      font-style: italic;
-      font-weight: 700;
+      border: 1.5px solid #d7c300;
     }
 
-    #input-area {
+    .msg.kongdol {
+      background-color: #fff0d1;
+      color: #ad6800;
+      align-self: flex-start;
+      border: 1.5px solid #d79f00;
+    }
+
+    .msg.bamdol {
+      background-color: #f9f4d1;
+      color: #756622;
+      align-self: flex-start;
+      border: 1.5px solid #a58e00;
+    }
+
+    .msg.cidar {
+      background-color: #fff8d0;
+      color: #8a7700;
+      align-self: flex-start;
+      border: 1.5px solid #b4a600;
+    }
+
+    .msg.takho {
+      background-color: #fff3b5;
+      color: #726100;
+      align-self: flex-start;
+      border: 1.5px solid #d3c100;
+    }
+
+    .msg.apple {
+      background-color: #fff9c8;
+      color: #7f6000;
+      align-self: flex-start;
+      border: 1.5px solid #cfc000;
+    }
+
+    footer {
       display: flex;
-      padding: 10px 12px;
-      background: #fff9db;
-      border-radius: 0 0 12px 12px;
-      gap: 10px;
-      box-shadow: 0 -2px 10px rgba(184,127,0,0.2);
+      padding: 10px;
+      background: #fff3b0;
+      border-top: 1px solid #f0e68c;
     }
 
-    #input {
-      flex-grow: 1;
-      padding: 12px 15px;
-      border-radius: 25px;
-      border: 1.5px solid #b87f00;
-      font-size: 16px;
+    input#input {
+      flex: 1;
+      border: 1.5px solid #d7c300;
+      border-radius: 20px;
+      padding: 8px 16px;
+      font-size: 1rem;
       outline: none;
-      background: #fffce3;
-      color: #5a4300;
-      transition: border-color 0.3s ease;
+      background: #fffbea;
+      color: #333;
     }
 
-    #input:focus {
-      border-color: #e6c800;
-    }
-
-    #send {
-      background-color: #b87f00;
+    button#send {
+      margin-left: 10px;
+      background-color: #f7e46e;
       border: none;
-      border-radius: 25px;
-      color: white;
-      padding: 12px 18px;
+      padding: 0 18px;
+      border-radius: 20px;
       cursor: pointer;
-      font-weight: bold;
-      font-size: 16px;
-      box-shadow: 0 3px 7px rgba(184,127,0,0.7);
-      transition: background-color 0.3s ease;
+      font-weight: 700;
+      color: #533d00;
+      font-size: 1rem;
+      transition: background-color 0.2s;
     }
 
-    #send:hover {
-      background-color: #e6c800;
-      box-shadow: 0 5px 10px rgba(230,200,0,0.8);
+    button#send:hover {
+      background-color: #d7c300;
     }
   </style>
 </head>
 <body>
-  <div id="chat"></div>
-  <div id="input-area">
-    <input id="input" type="text" placeholder="플로라에게 말 걸기..." autocomplete="off" />
-    <button id="send">말하기</button>
-  </div>
+  <header>동숲 친구들과 수다</header>
+
+  <nav id="char-select">
+    <button class="active" data-char="negu">너굴</button>
+    <button data-char="kongdol">콩돌</button>
+    <button data-char="bamdol">밤돌</button>
+    <button data-char="cidar">사이다</button>
+    <button data-char="takho">탁호</button>
+    <button data-char="apple">애플</button>
+  </nav>
+
+  <main id="chat"></main>
+
+  <footer>
+    <input id="input" type="text" placeholder="말 걸어보세요..." autocomplete="off" />
+    <button id="send">전송</button>
+  </footer>
 
   <script>
     const chat = document.getElementById('chat');
     const input = document.getElementById('input');
     const send = document.getElementById('send');
+    const charButtons = document.querySelectorAll('#char-select button');
 
-    const floraReplies = [
-      { keywords: ['안녕', '하이', '헬로'], reply: "안녕! 오늘도 좋은 하루 보내고 있지?" },
-      { keywords: ['물고기', '낚시'], reply: "낚시 참 재밌지! 너는 뭐 잡았어?" },
-      { keywords: ['꽃', '식물'], reply: "꽃은 정말 예쁘지. 난 데이지가 최고야!" },
-      { keywords: ['더워', '날씨'], reply: "요즘 너무 더워서 아이스크림 먹고 싶어!" },
-      { keywords: ['기분', '어때'], reply: "나는 기분이 좋아! 넌?" },
-    ];
+    const characters = {
+      negu: {
+        name: '너굴',
+        className: 'negu',
+        replies: [
+          { keywords: ['안녕', '하이'], reply: "안녕하세요, 준호님. 무슨 일로 오셨습니까" },
+          { keywords: ['돈', '벌이'], reply: "돈이 없으면 사업도 제대로 못 하지요" },
+          { keywords: ['동숲'], reply: "마을 발전을 위해 항상 최선을 다하고 있습니다" },
+        ],
+        defaultReplies: [
+          "흥, 무엇을 도와드릴까요",
+          "계산이 끝나야 일이 진행됩니다",
+          "좋은 거래만 합니다",
+        ],
+      },
 
-    const defaultReplies = [
-      "응? 무슨 말인지 잘 모르겠어ㅠㅠ",
-      "흥미롭네! 더 말해줘~",
-      "그렇구나! 동숲에서 그렇게 하는구나!",
-    ];
+      kongdol: {
+        name: '콩돌',
+        className: 'kongdol',
+        replies: [
+          { keywords: ['안녕', '하이'], reply: "안녕얌! 오늘 낚시 준비됐지요?" },
+          { keywords: ['물고기', '낚시'], reply: "오늘은 어떤 희귀한 고기 잡을까 얌!" },
+          { keywords: ['돈', '벌기'], reply: "낚시로 돈 벌자 얌!" },
+        ],
+        defaultReplies: [
+          "낚시하러 가자 얌!",
+          "희귀한 고기 잡는 건 신나는 일이얌!",
+          "흥분되는 낚시 얌!",
+        ],
+      },
 
-    function appendMessage(sender, text) {
-      const div = document.createElement('div');
-      div.className = 'msg ' + sender;
-      div.textContent = text;
-      chat.appendChild(div);
+      bamdol: {
+        name: '밤돌',
+        className: 'bamdol',
+        replies: [
+          { keywords: ['안녕', '하이'], reply: "안녕 야, 곤충 탐험 준비됐지?" },
+          { keywords: ['곤충', '수집'], reply: "이 곤충은 꽤 희귀하네. 한 번 봐봐." },
+          { keywords: ['판매', '돈'], reply: "곤충 팔아서 돈 벌어야지, 알겠지?" },
+        ],
+        defaultReplies: [
+          "곤충 관찰이 최고지 야.",
+          "자연 속에서 마음이 편안해지네.",
+          "멋진 곤충을 찾아야 해 하네.",
+        ],
+      },
+
+      cidar: {
+        name: '사이다',
+        className: 'cidar',
+        replies: [
+          { keywords: ['안녕', '하이'], reply: "안녕하세요, 잘 지내시나요 이네." },
+          { keywords: ['바느질', '취미'], reply: "바느질은 마음을 안정시키는구나 이네." },
+          { keywords: ['대화', '친구'], reply: "조용한 시간이 필요할 때 찾아와라구." },
+        ],
+        defaultReplies: [
+          "오늘도 바느질을 열심히 했네.",
+          "편안한 대화가 참 좋아 이네.",
+          "잠깐 쉬면서 이야기하자구.",
+        ],
+      },
+
+      takho: {
+        name: '탁호',
+        className: 'takho',
+        replies: [
+          { keywords: ['안녕', '하이'], reply: "안녕 야! 탁호입니다!" },
+          { keywords: ['일', '도움'], reply: "언제든 도와줄게요!" },
+          { keywords: ['농담', '재미'], reply: "농담도 좋아하죠! 하하!" },
+        ],
+        defaultReplies: [
+          "탁호야! 뭐 궁금한 거 있죠?",
+          "명랑하게 함께하자구요!",
+          "손님 맞이 준비 완료입니다!",
+        ],
+      },
+
+      apple: {
+        name: '애플',
+        className: 'apple',
+        replies: [
+          { keywords: ['안녕', '하이'], reply: "안녕얌! 애플이에요!" },
+          { keywords: ['과일', '달콤'], reply: "과일은 언제나 맛있죠 얌!" },
+          { keywords: ['모험', '친구'], reply: "모험 같이 가자 얌!" },
+        ],
+        defaultReplies: [
+          "애플이에요~ 궁금한 거 있죠 얌!",
+          "상큼하게 이야기해요 얌!",
+          "기분 좋은 하루 되죠!",
+        ],
+      }
+    };
+
+    // 말투 처리 함수
+    function addPoliteEnding(char, sentence) {
+      switch(char) {
+        case 'negu': // 너굴 (딱딱하지만 친절)
+          if (!sentence.endsWith('입니다.') && !sentence.endsWith('입니다')) {
+            sentence = sentence.replace(/님$/, ''); // 님 빼고
+            sentence = sentence.trim() + '입니다.';
+          }
+          return sentence;
+
+        case 'kongdol': // 콩돌 (활기차고 경쾌)
+          if (!sentence.endsWith('얌!') && !sentence.endsWith('이요!')) {
+            if (sentence.endsWith('요') || sentence.endsWith('다')) return sentence + '얌!';
+            else return sentence + '이요!';
+          }
+          return sentence;
+
+        case 'bamdol': // 밤돌 (자유분방, 자연스럽고 살짝 힙스터)
+          const endings = ['야.', '지?', '하네.'];
+          if (endings.some(e => sentence.endsWith(e))) return sentence;
+          return sentence + endings[Math.floor(Math.random() * endings.length)];
+
+        case 'cidar': // 사이다 (차분하고 정감있게)
+          if (!sentence.endsWith('이네.') && !sentence.endsWith('라구.')) {
+            return sentence + ' 이네.';
+          }
+          return sentence;
+
+        case 'takho': // 탁호 (명랑하고 깔끔)
+          const endings2 = ['야!', '죠!', '입니다!'];
+          if (endings2.some(e => sentence.endsWith(e))) return sentence;
+          return sentence + endings2[Math.floor(Math.random() * endings2.length)];
+
+        case 'apple': // 애플 (상큼발랄, 쾌활)
+          const endings3 = ['얌!', '죠!'];
+          if (endings3.some(e => sentence.endsWith(e))) return sentence;
+          return sentence + endings3[Math.floor(Math.random() * endings3.length)];
+
+        default:
+          return sentence;
+      }
+    }
+
+    let currentChar = 'negu';
+
+    function addMessage(text, from) {
+      const msg = document.createElement('div');
+      msg.classList.add('msg');
+      if(from === 'user') {
+        msg.classList.add('user');
+      } else {
+        msg.classList.add(currentChar);
+      }
+      msg.textContent = text;
+      chat.appendChild(msg);
       chat.scrollTop = chat.scrollHeight;
     }
 
-    function floraRespond(userText) {
-      const lower = userText.toLowerCase();
-      for (const item of floraReplies) {
-        for (const kw of item.keywords) {
-          if (lower.includes(kw)) {
-            appendMessage('flora', `플로라: ${item.reply}`);
-            return;
-          }
+    function getReply(input) {
+      const char = characters[currentChar];
+      const lowerInput = input.toLowerCase();
+      for (const pair of char.replies) {
+        if (pair.keywords.some(k => lowerInput.includes(k))) {
+          return addPoliteEnding(currentChar, pair.reply);
         }
       }
-      const randomReply = defaultReplies[Math.floor(Math.random() * defaultReplies.length)];
-      appendMessage('flora', `플로라: ${randomReply}`);
+      // 랜덤 기본 답변
+      const defReply = char.defaultReplies[Math.floor(Math.random() * char.defaultReplies.length)];
+      return addPoliteEnding(currentChar, defReply);
     }
 
-    send.onclick = () => {
+    function onSend() {
       const text = input.value.trim();
-      if (!text) return;
-      appendMessage('user', `준호: ${text}`);
+      if(!text) return;
+      addMessage(text, 'user');
       input.value = '';
-      setTimeout(() => floraRespond(text), 600);
-    };
+      setTimeout(() => {
+        const reply = getReply(text);
+        addMessage(reply, 'char');
+      }, 500);
+    }
 
+    send.addEventListener('click', onSend);
     input.addEventListener('keydown', e => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        send.click();
+      if(e.key === 'Enter') {
+        onSend();
       }
     });
+
+    charButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        charButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentChar = btn.dataset.char;
+        addMessage(`${characters[currentChar].name}(이)가 선택되었습니다.`, 'char');
+      });
+    });
+
+    // 초기 메시지
+    addMessage('너굴(이)가 선택되었습니다.', 'char');
   </script>
 </body>
 </html>
