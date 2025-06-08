@@ -3,9 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <title>동숲 친구들과 수다</title>
   <style>
-    /* 배경 연한 노랑 */
     body {
       margin: 0;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
@@ -81,7 +82,7 @@
       border: 1.5px solid #f7e46e;
     }
 
-    /* 캐릭터별 말풍선 색 */
+    /* 캐릭터별 배경 & 글자색 다르게 */
     .msg.negu {
       background-color: #fff3b0;
       color: #6b4f01;
@@ -189,6 +190,7 @@
       negu: {
         name: '너굴',
         className: 'negu',
+        talkStyle: '친절하지만 딱딱하고 격식 차림, 절대 친근하지 않음.',
         replies: [
           { keywords: ['안녕', '하이'], reply: "안녕하세요, 준호님. 무슨 일로 오셨습니까" },
           { keywords: ['돈', '벌이'], reply: "돈이 없으면 사업도 제대로 못 하지요" },
@@ -204,6 +206,7 @@
       kongdol: {
         name: '콩돌',
         className: 'kongdol',
+        talkStyle: '활기차고 낚시에 미친 사람 느낌, 약간 중독성 있는 말투',
         replies: [
           { keywords: ['안녕', '하이'], reply: "안녕얌! 오늘 낚시 준비됐지요?" },
           { keywords: ['물고기', '낚시'], reply: "오늘은 어떤 희귀한 고기 잡을까 얌!" },
@@ -219,6 +222,7 @@
       bamdol: {
         name: '밤돌',
         className: 'bamdol',
+        talkStyle: '진지하면서도 살짝 힙스터 느낌, 자연과 곤충 사랑이 넘침',
         replies: [
           { keywords: ['안녕', '하이'], reply: "안녕 야, 곤충 탐험 준비됐지?" },
           { keywords: ['곤충', '수집'], reply: "이 곤충은 꽤 희귀하네. 한 번 봐봐." },
@@ -234,6 +238,7 @@
       cidar: {
         name: '사이다',
         className: 'cidar',
+        talkStyle: '차분하고 담담한 톤, 간간히 따뜻한 말 던짐',
         replies: [
           { keywords: ['안녕', '하이'], reply: "안녕하세요, 잘 지내시나요 이네." },
           { keywords: ['바느질', '취미'], reply: "바느질은 마음을 안정시키는구나 이네." },
@@ -249,21 +254,23 @@
       takho: {
         name: '탁호',
         className: 'takho',
+        talkStyle: '명랑하고 깔끔, 다소 순진하고 명랑함',
         replies: [
-          { keywords: ['안녕', '하이'], reply: "안녕 야! 탁호입니다!" },
-          { keywords: ['일', '도움'], reply: "언제든 도와줄게요!" },
-          { keywords: ['농담', '재미'], reply: "농담도 좋아하죠! 하하!" },
+          { keywords: ['안녕', '하이'], reply: "야! 안녕! 오늘도 좋은 하루죠!" },
+          { keywords: ['일', '손님'], reply: "형과 함께 손님 맞이하는 중입니다!" },
+          { keywords: ['농담', '웃음'], reply: "재밌는 이야기 있죠! 같이 웃어요!" },
         ],
         defaultReplies: [
-          "탁호야! 뭐 궁금한 거 있죠?",
-          "명랑하게 함께하자구요!",
-          "손님 맞이 준비 완료입니다!",
+          "밝게 웃으며 하루를 보내자야!",
+          "일은 열심히, 웃음은 더 열심히!",
+          "손님 맞이 준비 끝났죠!",
         ],
       },
 
       apple: {
         name: '애플',
         className: 'apple',
+        talkStyle: '쾌활하고 경쾌함, 친근한 친구 느낌',
         replies: [
           { keywords: ['안녕', '하이'], reply: "안녕얌! 애플이에요!" },
           { keywords: ['과일', '달콤'], reply: "과일은 언제나 맛있죠 얌!" },
@@ -277,58 +284,13 @@
       }
     };
 
-    // 말투 처리 함수
-    function addPoliteEnding(char, sentence) {
-      switch(char) {
-        case 'negu': // 너굴 (딱딱하지만 친절)
-          if (!sentence.endsWith('입니다.') && !sentence.endsWith('입니다')) {
-            sentence = sentence.replace(/님$/, ''); // 님 빼고
-            sentence = sentence.trim() + '입니다.';
-          }
-          return sentence;
-
-        case 'kongdol': // 콩돌 (활기차고 경쾌)
-          if (!sentence.endsWith('얌!') && !sentence.endsWith('이요!')) {
-            if (sentence.endsWith('요') || sentence.endsWith('다')) return sentence + '얌!';
-            else return sentence + '이요!';
-          }
-          return sentence;
-
-        case 'bamdol': // 밤돌 (자유분방, 자연스럽고 살짝 힙스터)
-          const endings = ['야.', '지?', '하네.'];
-          if (endings.some(e => sentence.endsWith(e))) return sentence;
-          return sentence + endings[Math.floor(Math.random() * endings.length)];
-
-        case 'cidar': // 사이다 (차분하고 정감있게)
-          if (!sentence.endsWith('이네.') && !sentence.endsWith('라구.')) {
-            return sentence + ' 이네.';
-          }
-          return sentence;
-
-        case 'takho': // 탁호 (명랑하고 깔끔)
-          const endings2 = ['야!', '죠!', '입니다!'];
-          if (endings2.some(e => sentence.endsWith(e))) return sentence;
-          return sentence + endings2[Math.floor(Math.random() * endings2.length)];
-
-        case 'apple': // 애플 (상큼발랄, 쾌활)
-          const endings3 = ['얌!', '죠!'];
-          if (endings3.some(e => sentence.endsWith(e))) return sentence;
-          return sentence + endings3[Math.floor(Math.random() * endings3.length)];
-
-        default:
-          return sentence;
-      }
-    }
-
-    let currentChar = 'negu';
-
     function addMessage(text, from) {
       const msg = document.createElement('div');
       msg.classList.add('msg');
-      if(from === 'user') {
+      if (from === 'user') {
         msg.classList.add('user');
       } else {
-        msg.classList.add(currentChar);
+        msg.classList.add(characters[currentChar].className);
       }
       msg.textContent = text;
       chat.appendChild(msg);
@@ -340,17 +302,15 @@
       const lowerInput = input.toLowerCase();
       for (const pair of char.replies) {
         if (pair.keywords.some(k => lowerInput.includes(k))) {
-          return addPoliteEnding(currentChar, pair.reply);
+          return pair.reply;
         }
       }
-      // 랜덤 기본 답변
-      const defReply = char.defaultReplies[Math.floor(Math.random() * char.defaultReplies.length)];
-      return addPoliteEnding(currentChar, defReply);
+      return char.defaultReplies[Math.floor(Math.random() * char.defaultReplies.length)];
     }
 
     function onSend() {
       const text = input.value.trim();
-      if(!text) return;
+      if (!text) return;
       addMessage(text, 'user');
       input.value = '';
       setTimeout(() => {
@@ -359,24 +319,23 @@
       }, 500);
     }
 
-    send.addEventListener('click', onSend);
-    input.addEventListener('keydown', e => {
-      if(e.key === 'Enter') {
-        onSend();
-      }
-    });
+    let currentChar = 'negu';
 
     charButtons.forEach(btn => {
       btn.addEventListener('click', () => {
         charButtons.forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         currentChar = btn.dataset.char;
-        addMessage(`${characters[currentChar].name}(이)가 선택되었습니다.`, 'char');
       });
     });
 
-    // 초기 메시지
-    addMessage('너굴(이)가 선택되었습니다.', 'char');
+    send.addEventListener('click', onSend);
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        onSend();
+      }
+    });
+
   </script>
 </body>
 </html>
