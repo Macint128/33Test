@@ -1,97 +1,138 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <title>동물의 숲</title>
-
-    <!-- 홈 화면 아이콘 설정 -->
-    <link rel="apple-touch-icon" href="icon.png" />
-    <meta name="apple-mobile-web-app-title" content="동숲" />
-
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Helvetica Neue', Arial, sans-serif;
-            background-color: #f5fbe7;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            flex-direction: column;
-        }
-
-        .container {
-            text-align: center;
-        }
-
-        .character {
-            width: 200px;
-            height: 200px;
-            background: url('icon.png') no-repeat center/cover;
-            border-radius: 50%;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-            transition: transform 0.2s ease;
-        }
-
-        .character:active {
-            transform: scale(0.95);
-        }
-
-        .message {
-            font-size: 1.2rem;
-            color: #555;
-            min-height: 30px;
-        }
-
-        button {
-            padding: 10px 20px;
-            font-size: 1rem;
-            border: none;
-            border-radius: 12px;
-            background-color: #ffce54;
-            color: #333;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-
-        button:hover {
-            background-color: #f6b637;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+  <title>동숲톡🌳</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Comic Sans MS', sans-serif;
+      background-color: #d7f0c2;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+    header {
+      background-color: #89c997;
+      color: white;
+      text-align: center;
+      padding: 1rem;
+      font-size: 1.5rem;
+    }
+    #chat {
+      flex: 1;
+      padding: 1rem;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+    .message {
+      margin: 0.5rem 0;
+      padding: 0.5rem 1rem;
+      border-radius: 15px;
+      max-width: 70%;
+    }
+    .user {
+      align-self: flex-end;
+      background-color: #ffebc4;
+    }
+    .other {
+      align-self: flex-start;
+      background-color: #ffffff;
+    }
+    footer {
+      display: flex;
+      padding: 1rem;
+      background-color: #f0f4e5;
+    }
+    input {
+      flex: 1;
+      padding: 0.5rem;
+      border: 2px solid #89c997;
+      border-radius: 10px;
+    }
+    button {
+      padding: 0.5rem 1rem;
+      margin-left: 0.5rem;
+      background-color: #89c997;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <div class="character" id="malangi"></div>
-        <div class="message" id="message">말랑이를 눌러보세요!</div>
-        <button id="greetButton">말랑이 인사하기 🐾</button>
-    </div>
+  <header>동숲톡🌳</header>
+  <div id="chat"></div>
+  <footer>
+    <input type="text" id="input" placeholder="메시지를 입력하세요..." />
+    <button id="send">전송</button>
+  </footer>
 
-    <script>
-        const messages = [
-            "안녕하세요! 🐾 말랑이에요!",
-            "오늘도 좋은 하루 보내세요 🌼",
-            "따뜻한 차 한잔 어때요? ☕️",
-            "새 친구를 만나고 싶어요! 🎈",
-            "헤헷, 놀러와줘서 고마워요 💖"
-        ];
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.0/firebase-app.js";
+    import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/11.9.0/firebase-database.js";
 
-        const messageEl = document.getElementById('message');
-        const greetButton = document.getElementById('greetButton');
-        const malangi = document.getElementById('malangi');
+    const firebaseConfig = {
+      apiKey: "AIzaSyBqn-oAxNybpE5eN2P3ELrQw3sy81t8lv0",
+      authDomain: "animal-talk-94a8f.firebaseapp.com",
+      databaseURL: "https://animal-talk-94a8f-default-rtdb.firebaseio.com",  // 💡 반드시 databaseURL 추가해야해!
+      projectId: "animal-talk-94a8f",
+      storageBucket: "animal-talk-94a8f.appspot.com",
+      messagingSenderId: "444060511492",
+      appId: "1:444060511492:web:807891550ecbb3face3451",
+      measurementId: "G-EWCPC4D2GW"
+    };
 
-        function showRandomMessage() {
-            const randomIndex = Math.floor(Math.random() * messages.length);
-            messageEl.textContent = messages[randomIndex];
-        }
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
 
-        greetButton.addEventListener('click', showRandomMessage);
-        malangi.addEventListener('click', showRandomMessage);
-    </script>
+    const chatRef = ref(db, 'messages');
+
+    const chat = document.getElementById('chat');
+    const input = document.getElementById('input');
+    const sendButton = document.getElementById('send');
+
+    // 임시 유저명 랜덤으로 생성
+    const username = '유저' + Math.floor(Math.random() * 1000);
+
+    // 전송 함수
+    sendButton.addEventListener('click', () => {
+      const text = input.value.trim();
+      if (text !== '') {
+        const messageData = {
+          sender: username,
+          text: text,
+          timestamp: Date.now()
+        };
+        push(chatRef, messageData);
+        input.value = '';
+      }
+    });
+
+    // Enter 키 지원
+    input.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        sendButton.click();
+      }
+    });
+
+    // 실시간 새 메시지 수신
+    onChildAdded(chatRef, (snapshot) => {
+      const message = snapshot.val();
+      appendMessage(message.text, message.sender);
+    });
+
+    function appendMessage(text, sender) {
+      const msg = document.createElement('div');
+      msg.classList.add('message');
+      msg.classList.add(sender === username ? 'user' : 'other');
+      msg.textContent = sender + ': ' + text;
+      chat.appendChild(msg);
+      chat.scrollTop = chat.scrollHeight;
+    }
+  </script>
 </body>
 </html>
