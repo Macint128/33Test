@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-  <title>동숲톡🌳</title>
+  <title>동숲톡 회원제버전🌳</title>
   <style>
     body {
       margin: 0;
@@ -46,39 +46,87 @@
       padding: 1rem;
       background-color: #f0f4e5;
     }
-    input {
+    input[type="text"], input[type="email"], input[type="password"] {
       flex: 1;
       padding: 0.5rem;
       border: 2px solid #89c997;
       border-radius: 10px;
+      margin-right: 0.5rem;
     }
     button {
       padding: 0.5rem 1rem;
-      margin-left: 0.5rem;
       background-color: #89c997;
       color: white;
       border: none;
       border-radius: 10px;
       cursor: pointer;
     }
+    #login-section, #chat-section {
+      padding: 1rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    #login-section {
+      justify-content: center;
+      align-items: center;
+      gap: 0.7rem;
+      background-color: #c6e2b3;
+    }
+    #login-section > div {
+      width: 100%;
+      max-width: 320px;
+      display: flex;
+      gap: 0.5rem;
+    }
+    #logout-btn {
+      margin-left: 1rem;
+      background-color: #e05353;
+      flex-shrink: 0;
+    }
+    #user-info {
+      color: #3d5a0d;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
-  <header>동숲톡🌳</header>
-  <div id="chat"></div>
-  <footer>
-    <input type="text" id="input" placeholder="메시지를 입력하세요..." />
-    <button id="send">전송</button>
-  </footer>
+  <header>동숲톡 회원제버전🌳</header>
+
+  <!-- 로그인 & 회원가입 섹션 -->
+  <section id="login-section">
+    <input type="email" id="email" placeholder="이메일" />
+    <input type="password" id="password" placeholder="비밀번호" />
+    <div>
+      <button id="login-btn">로그인</button>
+      <button id="signup-btn">회원가입</button>
+    </div>
+    <div id="login-msg" style="color:red; margin-top:0.5rem;"></div>
+  </section>
+
+  <!-- 채팅 섹션 (로그인 후 표시) -->
+  <section id="chat-section" style="display:none; flex-direction: column; height: 100%;">
+    <div style="display:flex; align-items:center; padding: 0 1rem; background:#b4d98f;">
+      <div id="user-info"></div>
+      <button id="logout-btn">로그아웃</button>
+    </div>
+    <div id="chat"></div>
+    <footer>
+      <input type="text" id="input" placeholder="메시지를 입력하세요..." />
+      <button id="send">전송</button>
+    </footer>
+  </section>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.0/firebase-app.js";
     import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/11.9.0/firebase-database.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.9.0/firebase-auth.js";
 
+    // Firebase 설정
     const firebaseConfig = {
       apiKey: "AIzaSyBqn-oAxNybpE5eN2P3ELrQw3sy81t8lv0",
       authDomain: "animal-talk-94a8f.firebaseapp.com",
-      databaseURL: "https://animal-talk-94a8f-default-rtdb.firebaseio.com",  // 💡 반드시 databaseURL 추가해야해!
+      databaseURL: "https://animal-talk-94a8f-default-rtdb.firebaseio.com",
       projectId: "animal-talk-94a8f",
       storageBucket: "animal-talk-94a8f.appspot.com",
       messagingSenderId: "444060511492",
@@ -88,22 +136,115 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
+    const auth = getAuth(app);
 
     const chatRef = ref(db, 'messages');
 
+    // DOM 요소들
+    const loginSection = document.getElementById('login-section');
+    const chatSection = document.getElementById('chat-section');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const loginBtn = document.getElementById('login-btn');
+    const signupBtn = document.getElementById('signup-btn');
+    const logoutBtn = document.getElementById('logout-btn');
+    const loginMsg = document.getElementById('login-msg');
     const chat = document.getElementById('chat');
     const input = document.getElementById('input');
     const sendButton = document.getElementById('send');
+    const userInfo = document.getElementById('user-info');
 
-    // 임시 유저명 랜덤으로 생성
-    const username = '유저' + Math.floor(Math.random() * 1000);
+    let currentUser = null;
 
-    // 전송 함수
+    // 메시지 출력 함수
+    function appendMessage(text, sender) {
+      const msg = document.createElement('div');
+      msg.classList.add('message');
+      msg.classList.add(sender === currentUser ? 'user' : 'other');
+      msg.textContent = sender + ': ' + text;
+      chat.appendChild(msg);
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    // 로그인 상태 변화 감지
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        currentUser = user.email.split('@')[0];
+        loginSection.style.display = 'none';
+        chatSection.style.display = 'flex';
+        userInfo.textContent = `${currentUser} 님 환영합니다!`;
+        input.disabled = false;
+        sendButton.disabled = false;
+        chat.innerHTML = ''; // 초기화 후 메시지 불러오기
+
+        // 채팅 메시지 실시간 수신
+        onChildAdded(chatRef, (snapshot) => {
+          const message = snapshot.val();
+          appendMessage(message.text, message.sender);
+        });
+      } else {
+        currentUser = null;
+        loginSection.style.display = 'flex';
+        chatSection.style.display = 'none';
+        input.disabled = true;
+        sendButton.disabled = true;
+      }
+    });
+
+    // 회원가입 버튼
+    signupBtn.addEventListener('click', () => {
+      loginMsg.textContent = '';
+      const email = emailInput.value.trim();
+      const password = passwordInput.value.trim();
+      if (!email || !password) {
+        loginMsg.textContent = '이메일과 비밀번호를 입력하세요.';
+        return;
+      }
+      createUserWithEmailAndPassword(auth, email, password)
+        .then(() => {
+          loginMsg.style.color = 'green';
+          loginMsg.textContent = '회원가입 성공! 로그인해 주세요.';
+        })
+        .catch((error) => {
+          loginMsg.style.color = 'red';
+          loginMsg.textContent = error.message;
+        });
+    });
+
+    // 로그인 버튼
+    loginBtn.addEventListener('click', () => {
+      loginMsg.textContent = '';
+      const email = emailInput.value.trim();
+      const password = passwordInput.value.trim();
+      if (!email || !password) {
+        loginMsg.textContent = '이메일과 비밀번호를 입력하세요.';
+        return;
+      }
+      signInWithEmailAndPassword(auth, email, password)
+        .then(() => {
+          loginMsg.textContent = '';
+          emailInput.value = '';
+          passwordInput.value = '';
+        })
+        .catch((error) => {
+          loginMsg.style.color = 'red';
+          loginMsg.textContent = error.message;
+        });
+    });
+
+    // 로그아웃 버튼
+    logoutBtn.addEventListener('click', () => {
+      signOut(auth);
+      chat.innerHTML = '';
+      loginMsg.textContent = '';
+    });
+
+    // 채팅 전송
     sendButton.addEventListener('click', () => {
       const text = input.value.trim();
-      if (text !== '') {
+      if (text !== '' && currentUser) {
         const messageData = {
-          sender: username,
+          sender: currentUser,
           text: text,
           timestamp: Date.now()
         };
@@ -112,27 +253,11 @@
       }
     });
 
-    // Enter 키 지원
     input.addEventListener('keypress', (e) => {
       if (e.key === 'Enter') {
         sendButton.click();
       }
     });
-
-    // 실시간 새 메시지 수신
-    onChildAdded(chatRef, (snapshot) => {
-      const message = snapshot.val();
-      appendMessage(message.text, message.sender);
-    });
-
-    function appendMessage(text, sender) {
-      const msg = document.createElement('div');
-      msg.classList.add('message');
-      msg.classList.add(sender === username ? 'user' : 'other');
-      msg.textContent = sender + ': ' + text;
-      chat.appendChild(msg);
-      chat.scrollTop = chat.scrollHeight;
-    }
   </script>
 </body>
 </html>
